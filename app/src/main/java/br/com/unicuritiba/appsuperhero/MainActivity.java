@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,32 +19,28 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity
         implements View.OnClickListener  {
 
-    private ImageView imageView1 ;
-    private ImageView imageView2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        imageView1 = findViewById(R.id.imageView1);
-        imageView2 = findViewById(R.id.imageView2);
-
-        imageView1.setOnClickListener(this);
-        imageView2.setOnClickListener(this);
-
         ArrayList<SuperHero> superHeroes = SuperHeroRepository.getSuperHeroes();
 
+        LinearLayout linearLayoutContent = findViewById(R.id.layoutContent);
 
-        imageView1.setTag(superHeroes.get(0).getId());
-        Picasso.get().load(
-                superHeroes.get(0).getImage()
-        ).into(imageView1);
+        for(SuperHero superHero: superHeroes){
 
-        imageView2.setTag(superHeroes.get(1).getId());
-        Picasso.get().load(
-                superHeroes.get(1).getImage()
-        ).into(imageView2);
+            ImageView imageView = new ImageView(this);
+
+            imageView.setOnClickListener(this);
+            imageView.setTag(superHero.getId());
+            Picasso.get().load(
+                    superHero.getImage()
+            ).into(imageView);
+
+            linearLayoutContent.addView(imageView);
+        }
     }
 
     @Override
@@ -53,8 +50,6 @@ public class MainActivity extends AppCompatActivity
         Intent intent = new Intent(this,
                 DetailActivity.class);
         intent.putExtra("super", id);
-
         startActivity(intent);
-
     }
 }
