@@ -15,32 +15,17 @@ import androidx.core.view.WindowInsetsCompat;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements View.OnClickListener  {
+        implements View.OnClickListener, SuperHeroRepository.ApiResponse  {
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        ArrayList<SuperHero> superHeroes = SuperHeroRepository.getSuperHeroes();
-
-        LinearLayout linearLayoutContent = findViewById(R.id.layoutContent);
-
-        for(SuperHero superHero: superHeroes){
-
-            ImageView imageView = new ImageView(this);
-
-            imageView.setOnClickListener(this);
-            imageView.setTag(superHero.getId());
-            Picasso.get().load(
-                    superHero.getImage()
-            ).into(imageView);
-
-            linearLayoutContent.addView(imageView);
-        }
+        SuperHeroRepository.getSuperHeroesFromAPI(this);
     }
 
     @Override
@@ -51,5 +36,27 @@ public class MainActivity extends AppCompatActivity
                 DetailActivity.class);
         intent.putExtra("super", id);
         startActivity(intent);
+    }
+
+    @Override
+    public void onSuperHeroApiResponse(List<SuperHero> superHeroes) {
+
+        if(superHeroes != null){
+
+            LinearLayout linearLayoutContent = findViewById(R.id.layoutContent);
+
+            for(SuperHero superHero: superHeroes){
+
+                ImageView imageView = new ImageView(this);
+
+                imageView.setOnClickListener(this);
+                imageView.setTag(superHero.getId());
+                Picasso.get().load(
+                        superHero.getImages().getLg()
+                ).into(imageView);
+
+                linearLayoutContent.addView(imageView);
+            }
+        }
     }
 }
