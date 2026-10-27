@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
@@ -15,7 +17,7 @@ public class SuperHeroRepository {
         ArrayList<SuperHero> superHeroes = new ArrayList<>();
 
 
-        superHeroes.add(
+      /*  superHeroes.add(
                 new SuperHero(
                         1, "A-Bomb", "Richard Milhouse Jones",
                         38, 100, 17, 64,
@@ -339,7 +341,7 @@ public class SuperHeroRepository {
                         "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/md/332-hulk.jpg"
                 )
 
-        );
+        );*/
 
 
         return superHeroes;
@@ -357,21 +359,46 @@ public class SuperHeroRepository {
         return null;
     }
 
-
-    public static void getSuperHeroesFromAPI() {
+    public static void getSuperHeroesFromAPI(ApiResponse apiResponse) {
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://cdn.jsdelivr.net/gh/akabab")
+                .baseUrl("https://cdn.jsdelivr.net")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         SuperHeroService service = retrofit.create(SuperHeroService.class);
 
         Call<List<SuperHero>> repos = service.listSuper();
+
+        repos.enqueue(new Callback<List<SuperHero>>() {
+            @Override
+            public void onResponse(Call<List<SuperHero>> call,
+                                   Response<List<SuperHero>> response) {
+
+                if(response.isSuccessful()){
+
+                    List<SuperHero> responseSuperHero = response.body();
+
+                    apiResponse.onSuperHeroApiResponse(responseSuperHero);
+                }else{
+                    apiResponse.onSuperHeroApiResponse(null);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<SuperHero>> call,
+                                  Throwable t) {
+                apiResponse.onSuperHeroApiResponse(null);
+            }
+        });
     }
 
     public interface SuperHeroService {
-        @GET("superhero-api@0.3.0/api/all.json")
+        @GET("gh/akabab/superhero-api@0.3.0/api/all.json")
         Call<List<SuperHero>> listSuper();
+    }
+
+    public interface ApiResponse {
+        void onSuperHeroApiResponse(List<SuperHero> superHeroes);
     }
 }
